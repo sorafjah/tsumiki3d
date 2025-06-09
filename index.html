@@ -98,11 +98,21 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, deleteDoc, onSnapshot, query, serverTimestamp, writeBatch, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", projectId: "YOUR_PROJECT_ID" };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-3d-blocks-app';
+        // ===== ここにあなたの接続情報を設定しました！ =====
+        const firebaseConfig = {
+          apiKey: "AIzaSyBk-lnmwZnhPTj3yQuMfRBc3u5HFXko95k",
+          authDomain: "tsumiki3d.firebaseapp.com",
+          projectId: "tsumiki3d",
+          storageBucket: "tsumiki3d.firebasestorage.app",
+          messagingSenderId: "245181141529",
+          appId: "1:245181141529:web:a95fa288ab74de8ceb5088"
+        };
+        // ============================================
+        
+        const appId = firebaseConfig.appId || 'default-3d-blocks-app';
         
         let app, auth, db, userId;
         let cubesCollectionRef, savesCollectionRef;
@@ -159,9 +169,7 @@
                         if (user) { userId = user.uid; }
                         else {
                             try {
-                                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                                    await signInWithCustomToken(auth, __initial_auth_token);
-                                } else { await signInAnonymously(auth); }
+                                await signInAnonymously(auth);
                                 userId = auth.currentUser.uid;
                             } catch (error) { reject(error); return; }
                         }
@@ -175,7 +183,7 @@
                 });
             } catch (error) {
                 console.error("Firebase initialization error:", error);
-                showUserMessage("Firebaseの初期化に失敗しました。"); 
+                showUserMessage("アプリの起動に失敗しました: " + error.message); 
                 return Promise.reject(error);
             }
         }
@@ -584,7 +592,8 @@
                 initThreeJS(); 
                 await loadCubesFromFirestore(); 
             } catch (error) {
-                showUserMessage("アプリの起動に失敗しました: " + error.message);
+                // The initializeFirebase function already shows a detailed user message.
+                // No need to show another one here unless you want a generic fallback.
                 loadingIndicator.style.display = 'none';
             }
         }
